@@ -1,0 +1,21 @@
+apiVersion: apps/v1           # Versão da API
+kind: Deployment              # Deployment
+metadata: 
+  name: deployment
+  labels:
+    app: python
+spec:
+  replicas: 4
+  selector:                   # O deployment será aplicado para todos que contiverem essa label (app: nginx)
+    matchLabels:              
+      app: app-python
+  template:
+    metadata:
+      labels:
+        app: app-python            # Setando a label para o selector encontrar esses containeres
+    spec:
+      containers:
+      - name: app-python
+        image: morganis1411/teste:1.0
+        ports:
+        - containerPort: 5000

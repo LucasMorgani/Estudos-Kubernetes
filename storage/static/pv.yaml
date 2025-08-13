@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume                                                          # Localmente somente conseguimos montar um PV
+metadata:
+  name: example-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  local:
+    path: /data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname                                           # Acoplando o storage no node especificado (worker-1)
+          operator: In
+          values:
+          - worker-1

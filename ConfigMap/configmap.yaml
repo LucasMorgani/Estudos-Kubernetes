@@ -1,0 +1,49 @@
+# Passando o configmap pelo yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-demo
+data:
+  virtual_host: "vhost1.localhost.com"
+  index.html: |
+    <html>
+      <h1>Cu</h1>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        env:
+          - name: VIRTUAL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: nginx-demo
+                key: virtual_host
+        volumeMounts:
+        - name: index-html
+          mountPath: /usr/share/nginx/html
+          subPath: index.html
+      volumes:
+        - name: index-html
+          configMap:
+            name: nginx-demo
+            items:
+            - key: "index.html"
+              path: "index.html"
