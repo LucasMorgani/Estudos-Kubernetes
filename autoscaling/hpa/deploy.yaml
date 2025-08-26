@@ -1,0 +1,57 @@
+#
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  metrics:
+  - resource:                   #Ele irá monitorar metricas do tipo "resource" (recursos computacionais) 
+      name: cpu
+      target:
+        averageUtilization: 60  #Média de utilização - 60%
+        type: Utilization
+    type: Resource
+  minReplicas: 1                #Minimo de réplicas (sobrepõe o valor do deployment)
+  maxReplicas: 10               #Máximo de réplicas (sobrepõe o valor do deployment)
+  scaleTargetRef:               #O que ele vai monitorar?
+    apiVersion: apps/v1
+    kind: Deployment            #Um objeto deployment
+    name: nginx                 #Chamado nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources:
+          requests:
+            cpu: 10m
+          limits:
+            cpu: 100m 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: nginx
+  type: ClusterIP
